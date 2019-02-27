@@ -3,6 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/soajs/soajs.golang/badge.svg?branch=master)](https://coveralls.io/github/soajs/soajs.golang?branch=master)
 [![GolangCI](https://golangci.com/badges/github.com/soajs/soajs.golang.svg)](https://golangci.com)
 
-Require this Middle Ware in your restful golang service, and append it to your app as follows:
+Require this Middleware in your restful golang service, and append it to your app.
 
+See: https://soajsorg.atlassian.net/wiki/spaces/SOAJ/overview
 

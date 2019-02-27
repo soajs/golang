@@ -158,10 +158,8 @@ func TestManualDeploy(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			require.NoError(t, os.Setenv(EnvDeployManual, tc.envDeployManual))
 
-			addr := registryPath{
-				address: "localhost",
-			}
-			err := manualDeploy(tc.config, &addr)
+			addr := registryPath("localhost")
+			err := manualDeploy(tc.config, addr)
 			assert.Contains(t, err.Error(), tc.expectedErr.Error())
 
 			require.NoError(t, os.Setenv(EnvDeployManual, envDeployManual))

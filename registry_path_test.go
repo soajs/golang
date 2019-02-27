@@ -7,6 +7,6 @@ import (
 )
 
 func TestRegistryPath_register(t *testing.T) {
-	path := registryPath{address: "localhost"}
+	path := registryPath("localhost")
 	assert.Equal(t, "http://localhost/register", path.register())
 }

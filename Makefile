@@ -1,9 +1,9 @@
 .PHONY: lint test check
 
-POSTGRES_CONTAINER="postgres-${CONTROLLER_NAME}"
-
 lint:
-	golangci-lint run --config .golangci.yml
+	@golangci-lint run --config .golangci.yml
+
 test:
-	go test -cover ./...
+	@go test -cover ./...
+
 check: lint test

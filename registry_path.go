@@ -11,35 +11,29 @@ import (
 	"strings"
 )
 
-type (
-	registryPath struct {
-		address string
-	}
-)
+type registryPath string
 
-func registryAddress() (*registryPath, error) {
+func registryAddress() (registryPath, error) {
 	registryAPI := os.Getenv(EnvRegistryAPIAddress)
 	if registryAPI == "" {
-		return nil, fmt.Errorf("could not find environment variable %s", EnvRegistryAPIAddress)
+		return "", fmt.Errorf("could not find environment variable %s", EnvRegistryAPIAddress)
 	}
 	if index := strings.Index(registryAPI, ":"); index == -1 {
-		return nil, fmt.Errorf("invalid format for %s. Got [%s], expected [hostname:port]", EnvRegistryAPIAddress, registryAPI)
+		return "", fmt.Errorf("invalid format for %s. Got [%s], expected [hostname:port]", EnvRegistryAPIAddress, registryAPI)
 	}
 	port := strings.Split(registryAPI, ":")[1]
 	if _, err := strconv.Atoi(port); err != nil {
-		return nil, fmt.Errorf("port must be an integer, got %s", port)
+		return "", fmt.Errorf("port must be an integer, got %s", port)
 	}
-	return &registryPath{
-		address: registryAPI,
-	}, nil
+	return registryPath(registryAPI), nil
 }
 
 func (r registryPath) register() string {
-	return fmt.Sprintf("http://%s/register", r.address)
+	return fmt.Sprintf("http://%s/register", r)
 }
 
 func (r registryPath) getRegistry(serviceName, envCode string) string {
-	return fmt.Sprintf("http://%s/getRegistry?env=%s&serviceName=%s", r.address, envCode, serviceName)
+	return fmt.Sprintf("http://%s/getRegistry?env=%s&serviceName=%s", r, envCode, serviceName)
 }
 
 func registryResponse(res *http.Response) (*Registry, error) {

@@ -2,11 +2,12 @@ package soajsgo
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 )
 
 type (
-	// Config represent service configuration from json file.
+	// Config represents service configuration from json file.
 	// see: https://soajsorg.atlassian.net/wiki/spaces/SOAJ/pages/61347270/Service
 	Config struct {
 		Type          string `json:"type"`
@@ -32,6 +33,8 @@ type (
 	}
 )
 
+var versionRegexp = regexp.MustCompile(`[0-9]+(.[0-9]+)?`)
+
 // Validate validates soajs config.
 func (c *Config) Validate() error {
 	if c.Type == "" {
@@ -46,9 +49,8 @@ func (c *Config) Validate() error {
 	if c.ServiceVersion == "" {
 		return errors.New("could not find [ServiceVersion] in your config, ServiceVersion is <required>")
 	}
-	var validVersion = regexp.MustCompile(`[0-9]+(.[0-9]+)?`)
-	if !validVersion.MatchString(c.ServiceVersion) {
-		return errors.New("error with [ServiceVersion] in your config, ServiceVersion syntax is [[0-9]+(.[0-9]+)?]")
+	if !versionRegexp.MatchString(c.ServiceVersion) {
+		return fmt.Errorf("error with [ServiceVersion] in your config, ServiceVersion syntax is [%s]", versionRegexp)
 	}
 	return nil
 }

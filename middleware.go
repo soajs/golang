@@ -3,7 +3,6 @@ package soajsgo
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -30,10 +29,6 @@ func (reg *Registry) Middleware(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
-		if d == nil {
-			next.ServeHTTP(w, r)
-			return
-		}
 		out := ContextData{
 			Tenant:         d.Tenant,
 			Urac:           d.Urac,
@@ -56,13 +51,10 @@ func (reg *Registry) Middleware(next http.Handler) http.Handler {
 }
 
 func headerData(r *http.Request) (*headerInfo, error) {
-	headerData := r.Header.Get(headerDataName)
-	if headerData == "" {
-		return nil, nil
-	}
-	d := new(headerInfo)
-	if err := json.Unmarshal([]byte(headerData), d); err != nil {
-		return nil, errors.New("unable to parse SOAJS header")
+	info := strings.NewReader(r.Header.Get(headerDataName))
+	var d *headerInfo
+	if err := json.NewDecoder(info).Decode(&d); err != nil {
+		return nil, fmt.Errorf("unable to parse SOAJS header: %v", err)
 	}
 	return d, nil
 }
@@ -71,15 +63,9 @@ func headerData(r *http.Request) (*headerInfo, error) {
 func (a Host) Path(args ...string) string {
 	var serviceName, version string
 	switch len(args) {
-	// controller
-	case 1:
+	case 1: // controller
 		serviceName = args[0]
-		// controller, 1
-	case 2:
-		serviceName = args[0]
-		version = args[1]
-		// controller, 1, dash [dash is ignored]
-	case 3:
+	case 2, 3: // controller, 1, dash [dash is ignored]
 		serviceName = args[0]
 		version = args[1]
 	}

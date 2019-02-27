@@ -35,6 +35,7 @@ func New(ctx context.Context, serviceName, envCode string, turnOnAutoReload bool
 	if err != nil {
 		return nil, err
 	}
+	reg.onAutoReload = turnOnAutoReload
 	if turnOnAutoReload {
 		go reg.autoReload(ctx)
 	}
@@ -67,7 +68,7 @@ func NewFromConfig(ctx context.Context, config Config) (*Registry, error) {
 }
 
 // nolint: errcheck
-func manualDeploy(config Config, addr *registryPath) error {
+func manualDeploy(config Config, addr registryPath) error {
 	manualDeploySrt := os.Getenv(EnvDeployManual)
 	manualDeploy, err := strconv.ParseBool(manualDeploySrt)
 	if err != nil {
@@ -115,7 +116,7 @@ func manualDeploy(config Config, addr *registryPath) error {
 
 // Reload does the same that New does, It reloads registry from soajs.
 func (reg *Registry) Reload() error {
-	r, err := New(context.Background(), reg.Name, reg.Environment, false)
+	r, err := New(context.Background(), reg.Name, reg.Environment, reg.onAutoReload)
 	if err != nil {
 		return err
 	}
@@ -127,16 +128,15 @@ func (reg *Registry) Reload() error {
 // You can run this method in go routine.
 func (reg *Registry) autoReload(ctx context.Context) {
 	ticker := time.NewTicker(reg.autoReloadDuration())
+	defer ticker.Stop()
 	for {
 		select {
 		case <-ticker.C:
 			err := reg.Reload()
 			if err == nil {
-				ticker.Stop()
-				ticker = time.NewTicker(reg.autoReloadDuration())
+				return
 			}
 		case <-ctx.Done():
-			ticker.Stop()
 			return
 		}
 	}

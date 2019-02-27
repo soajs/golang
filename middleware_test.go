@@ -63,16 +63,10 @@ func TestHeaderData(t *testing.T) {
 		expectedErr  error
 	}{
 		{
-			name:         "empty header",
-			data:         "",
-			expectedInfo: nil,
-			expectedErr:  nil,
-		},
-		{
 			name:         "bad header",
 			data:         "nil",
 			expectedInfo: nil,
-			expectedErr:  errors.New("unable to parse SOAJS header"),
+			expectedErr:  errors.New("unable to parse SOAJS header: invalid character 'i' in literal null (expecting 'u')"),
 		},
 		{
 			name:         "all ok",
